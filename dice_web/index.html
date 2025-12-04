@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>カスタム6面サイコロ</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <!--
+      サイコロWebアプリ
+      - 6つの面の文字を自由に設定
+      - ローカルストレージに自動保存
+      - 「ふる」ボタンでアニメーション表示
+      すべてのコメントは日本語で記載。
+    -->
+    <main class="container">
+      <h1>カスタム6面サイコロ</h1>
+
+      <section class="controls" aria-labelledby="faces-title">
+        <h2 id="faces-title">面の設定</h2>
+        <form id="faces-form" class="faces-form" autocomplete="off">
+          <!-- 入力は最大4文字に制限。空の場合はデフォルト値を使用。 -->
+          <div class="grid">
+            <label>
+              <span>面1</span>
+              <input name="f1" maxlength="4" placeholder="1" />
+            </label>
+            <label>
+              <span>面2</span>
+              <input name="f2" maxlength="4" placeholder="2" />
+            </label>
+            <label>
+              <span>面3</span>
+              <input name="f3" maxlength="4" placeholder="3" />
+            </label>
+            <label>
+              <span>面4</span>
+              <input name="f4" maxlength="4" placeholder="4" />
+            </label>
+            <label>
+              <span>面5</span>
+              <input name="f5" maxlength="4" placeholder="5" />
+            </label>
+            <label>
+              <span>面6</span>
+              <input name="f6" maxlength="4" placeholder="6" />
+            </label>
+          </div>
+          <div class="buttons">
+            <button type="button" id="reset-btn" class="secondary">デフォルトに戻す</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="roller" aria-labelledby="roll-title">
+        <h2 id="roll-title">ふる</h2>
+        <div class="scene" aria-hidden="false">
+          <div id="cube" class="cube" role="img" aria-label="サイコロ 3D 表示">
+            <div class="face front"  data-index="0"><span class="placeholder" aria-hidden="true">?</span><span class="label">1</span></div>
+            <div class="face right"  data-index="1"><span class="placeholder" aria-hidden="true">?</span><span class="label">2</span></div>
+            <div class="face back"   data-index="2"><span class="placeholder" aria-hidden="true">?</span><span class="label">3</span></div>
+            <div class="face left"   data-index="3"><span class="placeholder" aria-hidden="true">?</span><span class="label">4</span></div>
+            <div class="face top"    data-index="4"><span class="placeholder" aria-hidden="true">?</span><span class="label">5</span></div>
+            <div class="face bottom" data-index="5"><span class="placeholder" aria-hidden="true">?</span><span class="label">6</span></div>
+          </div>
+        </div>
+        <!-- スクリーンリーダー向けの結果通知 -->
+        <div id="result-live" class="sr-only" aria-live="polite" aria-atomic="true">1</div>
+        <div class="buttons">
+          <button id="roll-btn" class="primary">サイコロをふる</button>
+        </div>
+        <p class="hint">入力は自動保存されます（この端末のみ）。</p>
+      </section>
+
+      <footer class="footer">
+        <small>© 2025 Dice Demo — ローカルのみで動作</small>
+      </footer>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+  </html>

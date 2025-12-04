@@ -1,0 +1,180 @@
+/*
+  スタイル: カスタム6面サイコロ
+  - シンプルで読みやすいUI
+  - ライト/ダーク両対応（OS設定に追従）
+*/
+
+:root {
+  --bg: #0b0c10;
+  --panel: #12151a;
+  --text: #e6edf3;
+  --muted: #9da8b3;
+  --primary: #3da9fc;
+  --primary-press: #1d8be0;
+  --secondary: #2a2f36;
+  --border: #2b3440;
+  --die-bg: #ffffff; /* サイコロは白ベース */
+  --die-border: #d0d7de;
+  --die-text: #0f172a;
+  --result: #e11d48; /* 確定時の赤 */
+  --shadow: rgba(0, 0, 0, 0.3);
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #f6f8fa;
+    --panel: #ffffff;
+    --text: #0f172a;
+    --muted: #475569;
+    --primary: #2563eb;
+    --primary-press: #1e40af;
+    --secondary: #eef2f6;
+    --border: #d0d7de;
+    --die-bg: #ffffff;
+    --die-border: #d0d7de;
+    --die-text: #0f172a;
+    --result: #e11d48;
+    --shadow: rgba(0, 0, 0, 0.08);
+  }
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, "Hiragino Kaku Gothic ProN", Meiryo, "Noto Sans JP", sans-serif;
+  background: radial-gradient(1200px 800px at 20% 0%, #0f172a33, transparent) , var(--bg);
+  color: var(--text);
+}
+
+.container {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 24px 16px 80px;
+}
+
+h1 { font-size: 28px; margin: 0 0 16px; }
+h2 { font-size: 18px; margin: 0 0 12px; color: var(--muted); font-weight: 600; }
+
+.controls, .roller {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 8px 24px var(--shadow);
+}
+
+.controls { margin-bottom: 16px; }
+
+.faces-form .grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+label { display: flex; flex-direction: column; gap: 6px; font-size: 13px; }
+input[type="text"], input:not([type]) {
+  font-size: 16px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--secondary);
+  color: var(--text);
+}
+input::placeholder { color: var(--muted); }
+
+.buttons { display: flex; gap: 12px; margin-top: 12px; }
+.primary, .secondary {
+  appearance: none; border: none; cursor: pointer;
+  padding: 10px 14px; border-radius: 10px; font-size: 15px; font-weight: 600;
+}
+.primary { background: var(--primary); color: white; }
+.primary:active { background: var(--primary-press); }
+.secondary { background: var(--secondary); color: var(--text); border: 1px solid var(--border); }
+
+.roller { display: grid; place-items: center; gap: 12px; }
+
+/* 視覚的に隠す（アクセシビリティ用） */
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+
+/* 3D サイコロ */
+.scene {
+  /* 立方体の一辺の長さをCSS変数で管理（translateZは長さが必要） */
+  --size: clamp(140px, 28vw, 240px);
+  width: var(--size);
+  height: var(--size);
+  perspective: 800px;
+}
+
+.cube {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 5000ms cubic-bezier(.22,.61,.36,1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cube { transition-duration: 300ms; }
+}
+
+.face {
+  position: absolute;
+  inset: 0;
+  display: grid; place-items: center;
+  padding: 8px 12px;
+  background: radial-gradient(160px 100px at 20% 15%, #ffffff12, transparent), var(--die-bg);
+  border: 2px solid var(--die-border);
+  border-radius: 18px;
+  box-shadow: 0 12px 30px var(--shadow);
+  user-select: none;
+  backface-visibility: hidden;
+  overflow: hidden;
+}
+
+/* 面ラベルの自動フィット用。1行・中央・はみ出し防止 */
+.face .label {
+  display: block;
+  max-width: 100%;
+  font-weight: 800;
+  color: #000; /* 表示時の色（黒） */
+  white-space: nowrap;
+  line-height: 1.05;
+  text-align: center;
+  will-change: font-size, opacity, transform;
+  opacity: 0; /* 初期/回転中は非表示 */
+  transform: translateY(6px);
+  transition: opacity 420ms ease, transform 420ms ease;
+}
+
+.face .placeholder {
+  position: absolute;
+  inset: 0;
+  display: grid; place-items: center;
+  font-weight: 800;
+  color: #94a3b8; /* 落ち着いたグレー */
+  opacity: 0.9; /* 初期は?を見せる */
+  pointer-events: none;
+  transition: opacity 420ms ease;
+  font-size: calc(var(--size) * 0.28);
+}
+
+/* 結果確定: ? を消し、ラベルをフェードイン */
+.face.is-result .placeholder { opacity: 0; }
+.face.is-result .label { opacity: 1; transform: translateY(0); }
+
+/* 立方体の各面配置（サイズは要素の半分） */
+/* translateZ は % を受け付けないため px ベースで半分を指定 */
+.face.front  { transform: translateZ(calc(var(--size) / 2)); }
+.face.back   { transform: rotateY(180deg) translateZ(calc(var(--size) / 2)); }
+.face.right  { transform: rotateY(90deg)  translateZ(calc(var(--size) / 2)); }
+.face.left   { transform: rotateY(-90deg) translateZ(calc(var(--size) / 2)); }
+.face.top    { transform: rotateX(90deg)  translateZ(calc(var(--size) / 2)); }
+.face.bottom { transform: rotateX(-90deg) translateZ(calc(var(--size) / 2)); }
+
+.hint { margin: 0; color: var(--muted); font-size: 12px; }
+.footer { margin-top: 20px; color: var(--muted); text-align: center; }
+
+@media (max-width: 560px) {
+  .faces-form .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}

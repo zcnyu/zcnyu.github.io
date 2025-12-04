@@ -163,6 +163,17 @@ input::placeholder { color: var(--muted); }
 .face.is-result .placeholder { opacity: 0; }
 .face.is-result .label { opacity: 1; transform: translateY(0); }
 
+/* ロール中は常に?のみ表示（前回結果のラベルを即時非表示） */
+.cube.is-rolling .face .label {
+  opacity: 0 !important;
+  transform: translateY(6px) !important;
+  transition: none !important; /* 即座に?表示へ戻す */
+}
+.cube.is-rolling .face .placeholder {
+  opacity: 0.9 !important;
+  transition: none !important; /* 即座に?表示へ戻す */
+}
+
 /* 立方体の各面配置（サイズは要素の半分） */
 /* translateZ は % を受け付けないため px ベースで半分を指定 */
 .face.front  { transform: translateZ(calc(var(--size) / 2)); }

@@ -136,14 +136,23 @@
 
     rolling = true;
     rollBtn.disabled = true;
-    // 直前の結果表示をクリア（?のみを残す）
-    faceEls.forEach((el) => el.classList.remove('is-result'));
-    // ライブ領域も?に戻す
+    // ロール開始: 表示を完全初期化（?のみ表示）
+    faceEls.forEach((el) => {
+      el.classList.remove('is-result');
+      const ph = el.querySelector('.placeholder');
+      const lb = el.querySelector('.label');
+      if (lb) lb.style.opacity = '0';
+      if (lb) lb.style.transform = 'translateY(6px)';
+      if (ph) ph.style.opacity = '0.9';
+    });
+    cubeEl.classList.add('is-rolling');
     liveEl.textContent = '?';
-    // いったんリフローを発生させて、?への切り替えを確実に反映
-    // （同フレームでtransformを変更すると、まれにラベルが残像的に見えるのを防ぐ）
+    // 反映を安定させるためにリフロー
     void cubeEl.offsetWidth;
-    cubeEl.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;
+    // 次フレームで回転開始（?表示が適用された後に動かす）
+    requestAnimationFrame(() => {
+      cubeEl.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;
+    });
 
     const onDone = () => {
       cubeEl.removeEventListener('transitionend', onDone);
@@ -151,11 +160,26 @@
       rollBtn.disabled = false;
       // 最終結果をライブ領域に通知
       liveEl.textContent = faces[final];
-      // 決定面のみ赤色表示
+      // まずロール状態を解除して?表示ルールを外す
+      cubeEl.classList.remove('is-rolling');
+      // 1フレーム遅らせて結果面にis-resultを付与（確実に?→ラベルへ切り替え）
       const win = faceEls.find((el) => Number(el.getAttribute('data-index')) === final);
-      if (win) win.classList.add('is-result');
-      // 念のため再フィット（サイズ変更が起きた場合）
-      resizeAllLabels();
+      requestAnimationFrame(() => {
+        // 全面のインライン初期化を解除（CSSトランジションに戻す）
+        faceEls.forEach((el) => {
+          const ph = el.querySelector('.placeholder');
+          const lb = el.querySelector('.label');
+          if (lb) { lb.style.opacity = ''; lb.style.transform = ''; }
+          if (ph) { ph.style.opacity = ''; }
+        });
+        if (win) {
+          // 反映のために軽くリフローを入れてから付与
+          void win.offsetWidth;
+          win.classList.add('is-result');
+        }
+        // 念のため再フィット（サイズ変更が起きた場合）
+        resizeAllLabels();
+      });
     };
     cubeEl.addEventListener('transitionend', onDone);
   });

@@ -7,7 +7,7 @@
   'use strict';
 
   /** デフォルトの6面 */
-  const DEFAULT_FACES = ['1', '2', '3', '4', '5', '6'];
+  const DEFAULT_FACES = ['ポトフ', 'ポトフ', 'ポトフ', 'ポトフ', 'ポトフ', 'ポトフ'];
   /** ローカルストレージキー */
   const STORAGE_KEY = 'dice_web_faces_v1';
 
@@ -138,6 +138,11 @@
     rollBtn.disabled = true;
     // 直前の結果表示をクリア（?のみを残す）
     faceEls.forEach((el) => el.classList.remove('is-result'));
+    // ライブ領域も?に戻す
+    liveEl.textContent = '?';
+    // いったんリフローを発生させて、?への切り替えを確実に反映
+    // （同フレームでtransformを変更すると、まれにラベルが残像的に見えるのを防ぐ）
+    void cubeEl.offsetWidth;
     cubeEl.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;
 
     const onDone = () => {
